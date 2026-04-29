@@ -12,8 +12,19 @@ async function init() {
     await mapContentAPI.init();
 }
 
+const FETCH_MAPS_TIMEOUT_MS = 15_000;
+
 async function fetchAllMaps(): Promise<[MapData[], MapDownloadData[]]> {
-    const maps = await fetch("https://maps-metadata.beyondallreason.dev/latest/lobby_maps.validated.json");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_MAPS_TIMEOUT_MS);
+    let maps: Response;
+    try {
+        maps = await fetch("https://maps-metadata.beyondallreason.dev/latest/lobby_maps.validated.json", {
+            signal: controller.signal,
+        });
+    } finally {
+        clearTimeout(timeout);
+    }
     const mapsAsObject = await maps.json();
     const mapsAsArray = Object.values(mapsAsObject) as MapMetadata[];
 
@@ -47,6 +58,7 @@ async function fetchAllMaps(): Promise<[MapData[], MapDownloadData[]]> {
 function registerIpcHandlers(webContents: BarIpcWebContents) {
     ipcMain.handle("maps:downloadMap", (_, springName: string) => mapContentAPI.downloadMap(springName));
     ipcMain.handle("maps:downloadMaps", (_, springNames: string[]) => mapContentAPI.downloadMaps(springNames));
+    ipcMain.handle("maps:getInstalledMapNames", () => Object.keys(mapContentAPI.mapNameFileNameLookup));
     ipcMain.handle("maps:getInstalledVersions", () => mapContentAPI.availableVersions);
     ipcMain.handle("maps:isVersionInstalled", (_, id: string) => mapContentAPI.isVersionInstalled(id));
     ipcMain.handle("maps:attemptCacheErrorMaps", () => mapContentAPI.attemptCacheErrorMaps());
