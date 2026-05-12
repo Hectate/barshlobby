@@ -10,7 +10,7 @@ import { homedir } from "os";
 
 // Should be the same as `productName` in electron-builder.ts
 // and in workaround in installer.nsh.
-export const APP_NAME = "BeyondAllReason";
+export const APP_NAME = "BARsh";
 
 /**
  * The function returns default base directories for the application data.

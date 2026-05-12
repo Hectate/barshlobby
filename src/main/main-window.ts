@@ -27,14 +27,14 @@ export function createWindow() {
     }
 
     const mainWindow = new BrowserWindow({
-        title: "Beyond All Reason",
-        fullscreen: settings.fullscreen,
+        title: "BAR.sh Lobby",
+        fullscreen: false,
         icon: nativeImage.createFromDataURL(icon),
         resizable: true,
         center: true,
-        frame: false,
+        frame: true,
         show: false,
-        autoHideMenuBar: true,
+        autoHideMenuBar: false,
         ...getWindowSize(settings.size),
         minWidth: 640,
         minHeight: 360,

@@ -1,0 +1,22 @@
+// SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
+//
+// SPDX-License-Identifier: MIT
+import { commandModel } from "@renderer/shell/commandModel";
+
+export const engineCommands: commandModel = {
+    help: ["Commands related to engine files"],
+    subcommands: {
+        download: {
+            help: ["Attempt to download an engine to your current assets directory"],
+        },
+        list: {
+            help: ["Displays a list of installed engines in the current assets directory", "This is limited to engines compatible with the currently selected game."],
+            flags: {
+                v: "verbose mode",
+            },
+        },
+        select: {
+            help: ["Assign the selected engine for use with offline battles."],
+        },
+    },
+};

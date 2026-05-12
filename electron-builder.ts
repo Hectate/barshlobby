@@ -4,10 +4,10 @@ import { Configuration } from "electron-builder";
  * @see https://www.electron.build/configuration
  */
 const config: Configuration = {
-    appId: "info.beyondallreason.lobby",
+    appId: "hectate.barshlobby",
     // Should be the same as APP_NAME in src/main/config/app.ts and in
     // workaround in installer.nsh.
-    productName: "BeyondAllReason",
+    productName: "BARsh",
 
     asar: true,
     disableDefaultIgnoredFiles: true,
@@ -38,8 +38,8 @@ const config: Configuration = {
     },
     nsis: {
         artifactName: "${productName}-${version}-setup.${ext}",
-        uninstallDisplayName: "Beyond All Reason",
-        shortcutName: "Beyond All Reason",
+        uninstallDisplayName: "BARsh Lobby",
+        shortcutName: "BARsh",
         oneClick: true,
         perMachine: false,
         allowToChangeInstallationDirectory: false,

@@ -38,5 +38,5 @@
 
 !macro customHeader
   ; Workaround for https://github.com/electron-userland/electron-builder/issues/4803
-  !define /redef APP_FILENAME "BeyondAllReason"
+  !define /redef APP_FILENAME "BARsh"
 !macroend
