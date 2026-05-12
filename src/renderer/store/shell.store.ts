@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 import { commands } from "@renderer/shell/commands";
 import { reactive } from "vue";
+import { outputError } from "@renderer/shell/error";
 
 export const shellStore: {
     isInitialized: boolean;
@@ -10,17 +11,35 @@ export const shellStore: {
     history: string[];
     prompt: string[];
     suggestions: string[];
+    vars: Map<string, string>;
 } = reactive({
     isInitialized: false,
     log: [],
     history: [],
     prompt: ["BAR.sh-$"],
     suggestions: [],
+    vars: new Map(),
 });
+
+const defaultVars = ["lobby", "self", "party", "server"];
 
 export async function initShellStore() {
     initializeCommands();
+    initializeVars();
     shellStore.isInitialized = true;
+}
+
+function output(value: string[], options?: { level: "error" | "warn" | "info" }) {
+    if (options?.level === "error") {
+        console.log("error printed");
+    }
+    if (options?.level === "warn") {
+        console.log("warning printed");
+    }
+    if (options?.level === "info") {
+        console.log("info printed");
+    }
+    shellStore.history.push(...value);
 }
 
 function parseCommand(input: string) {
@@ -30,6 +49,7 @@ function parseCommand(input: string) {
     if (args[0].toLowerCase() === "help") {
         handleHelpRequest(args);
     } else {
+        //TODO: replace all variables before pushing them into this next function
         handleCommandRequest(args);
     }
 }
@@ -45,7 +65,8 @@ function handleCommandRequest(args: string[]) {
             return;
         }
     } catch (error) {
-        console.log(`Error with function for ${args.join(" ")}`, error);
+        outputError(`Invalid function call for command ${args.join(" ")}`);
+        console.log(error);
         return;
     }
 }
@@ -58,6 +79,9 @@ function suggestCommand(input: string) {
         }
     }
     shellStore.suggestions = arr;
+}
+function suggestVariable(input: string) {
+    return;
 }
 
 function handleHelpRequest(args: string[]) {
@@ -73,7 +97,7 @@ function handleHelpRequest(args: string[]) {
         return;
     }
     if (args[1].toLowerCase() == "help") {
-        shellStore.history.push("There is no recursive help (this is a paradox).");
+        shellStore.history.push("There is no recursive help (this statement is a paradox).");
         return;
     }
     const target = args[1].split(".");
@@ -88,7 +112,7 @@ function handleHelpRequest(args: string[]) {
             shellStore.history.push(...commands[target[0]].help);
             for (const key in commands[target[0]].subcommands) {
                 const item = commands[target[0]].subcommands[key];
-                shellStore.history.push(`* ${key} - ${item.help}`);
+                shellStore.history.push(`* ${key} - ${item.help[0]}`);
             }
         }
     } catch {
@@ -99,8 +123,16 @@ function handleHelpRequest(args: string[]) {
 function initializeCommands() {
     return;
 }
+function initializeVars() {
+    for (const v of defaultVars) {
+        shellStore.vars.set(v, "undefined");
+    }
+}
 
 export const shell = {
+    defaultVars,
     parseCommand,
     suggestCommand,
+    suggestVariable,
+    output,
 };

@@ -11,14 +11,16 @@ import { mapCommands } from "@renderer/shell/map";
 import { battleCommands } from "@renderer/shell/battle";
 import { lobbyCommands } from "@renderer/shell/lobby";
 import { chatCommands } from "@renderer/shell/chat";
+import { varCommands } from "@renderer/shell/var";
 
 export const commands = {
     help: [
         "Barsh is a client for Beyond All Reason (BAR). It is designed to act like a OS shell (SH) environment, without a GUI.",
         'Below is a list of commands that can be used to control barsh. You can get more information about with "help [command]" and "help [command].[subcommand]',
         'Command syntax is "[command].[subcommand] -[flags] [arguments]". For example, "settings.server -a your.tachyon.server"',
-        'Also available are "vars" that can be used as variables in commands, you may type "help vars" to get more information about them.',
+        'Also available are Variables to use in commands, you may type "help var" to get more information about them.',
     ],
+    var: varCommands,
     quit: quitCommands,
     user: userCommands,
     settings: settingsCommands,
