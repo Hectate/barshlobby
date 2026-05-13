@@ -4,6 +4,14 @@
 import { commands } from "@renderer/shell/commands";
 import { reactive } from "vue";
 import { outputError } from "@renderer/shell/error";
+import { UserId, PartyId, LobbyId } from "tachyon-protocol/types";
+
+type channel = {
+    type?: "party" | "lobby" | "player";
+    userId?: UserId;
+    partyId?: PartyId;
+    lobbyId?: LobbyId;
+};
 
 export const shellStore: {
     isInitialized: boolean;
@@ -13,6 +21,7 @@ export const shellStore: {
     suggestions: string[];
     vars: Map<string, string>;
     indices: Map<string, string>;
+    lastChannel: channel;
 } = reactive({
     isInitialized: false,
     log: [],
@@ -21,11 +30,16 @@ export const shellStore: {
     suggestions: [],
     vars: new Map(),
     indices: new Map(),
+    lastChannel: {},
 });
 
 // TODO: Tachyon features still need hooking up, and we need to handle incoming events that should be
 // displayed to the user (e.g. chat messages, lobby votes, etc).
-const defaultVars = ["lobby", "self", "party", "server"];
+// TODO: Make aliases hidable with a setting to reduce verbosity in console.
+// Will need both a setting to save as well as a way to identify when commands are not directly from the original string as typed (excluding vars subtitutions)
+// TODO: vars should probably be saved as a settings instead of lost on close.
+
+const defaultVars = ["lobby", "self", "party"];
 
 export async function initShellStore() {
     initializeCommands();

@@ -8,6 +8,7 @@ import { MessagingReceivedEventData, MessagingSendRequestData, MessagingSubscrib
 import { notificationsApi } from "@renderer/api/notifications";
 import { Message } from "@renderer/model/message";
 import { me } from "@renderer/store/me.store";
+import { shellStore } from "@renderer/store/shell.store";
 // import { setupI18n } from "@renderer/i18n";
 
 // const i18n = setupI18n();
@@ -83,8 +84,12 @@ function onMessagingReceivedEvent(data: MessagingReceivedEventData) {
     console.log("Tachyon event: messaging/received:", data);
     subsManager.attach(data.source.userId, chatSymbol);
     insertMessage(data, data.source);
+    shellStore.lastChannel.type = data.source.type;
+    shellStore.lastChannel.userId = data.source.userId;
+    shellStore.lastChannel.lobbyId = data.source.type == "lobby" ? data.source.lobbyId : undefined;
+    shellStore.lastChannel.lobbyId = data.source.type == "party" ? data.source.partyId : undefined;
+    console.log(shellStore.lastChannel);
 }
-
 /**
  * Inserts a message into a chat history that this client sent, because the server will not provide it back to us as an event
  * @param requestData Payload of data already sent to the Tachyon server for this client's message request
