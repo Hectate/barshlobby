@@ -2,6 +2,9 @@
 //
 // SPDX-License-Identifier: MIT
 import { commandModel } from "@renderer/shell/commandModel";
+import { shell } from "@renderer/store/shell.store";
+import { outputError } from "@renderer/shell/error";
+import { db } from "@renderer/store/db";
 
 export const engineCommands: commandModel = {
     help: ["Commands related to engine files"],

@@ -12,6 +12,9 @@ import { battleCommands } from "@renderer/shell/battle";
 import { lobbyCommands } from "@renderer/shell/lobby";
 import { chatCommands } from "@renderer/shell/chat";
 import { varCommands } from "@renderer/shell/var";
+import { echoCommands } from "@renderer/shell/echo";
+import { commandModel } from "@renderer/shell/commandModel";
+import { shell } from "@renderer/store/shell.store";
 
 export const commands = {
     help: [
@@ -20,6 +23,7 @@ export const commands = {
         'Command syntax is "[command].[subcommand] -[flags] [arguments]". For example, "settings.server -a your.tachyon.server"',
         'Also available are Variables to use in commands, you may type "help var" to get more information about them.',
     ],
+    echo: echoCommands,
     var: varCommands,
     quit: quitCommands,
     user: userCommands,
@@ -30,4 +34,13 @@ export const commands = {
     battle: battleCommands,
     lobby: lobbyCommands,
     chat: chatCommands,
+    re: <commandModel>{
+        help: ["This is an alias for 'chat.reply'"],
+        hidden: true,
+        function: reCommand,
+    },
 };
+
+function reCommand(args: string[]) {
+    shell.parseCommand(`chat.reply ${args.slice(1).join(" ")}`);
+}

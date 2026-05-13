@@ -9,11 +9,14 @@ export const varCommands: commandModel = {
     help: [
         "Commands related to shell variables.",
         "Variables are a way to quickly re-use known strings using named references, rather than typing them out manually.",
-        "For example, typing a lobby ID can be slow and prone to mistakes. Instead, you simply reference the variable with :lobby: and Barsh will replace it with the saved ID.",
-        "Nested variables are not supported, although they may work. Beware of infinitely nested variables.",
+        "For example, typing a lobby ID can be slow and prone to mistakes. Instead, you simply reference the variable with :lobby and Barsh will replace it with the saved ID.",
+        "Nested variables are not supported, although they may work? Beware of infinitely nested variables.",
+        "Variables are replaced *before* the command is parsed, so it is possible to make command aliases with them.",
         "Undefined variables will be treated as a non-variable string and not be replaced when used.",
         "Barsh automatically creates and updates certain variables during use. You may also define your own, see 'help vars.add'.",
         "Indexed variables are created by Barsh when a list is generated in the output. See 'help vars.index' for more information.",
+        "Syntax | :[var name]",
+        "Example | settings.server -s :my_server",
     ],
     function: unknownCommand,
     subcommands: {
@@ -38,12 +41,7 @@ export const varCommands: commandModel = {
             function: delCommand,
         },
         list: {
-            help: [
-                "Outputs a lists known variables",
-                "The default behavior is to display both default and user-defined variables (same as -du flags)",
-                "Usage   | vars.list [flags]",
-                "Example | vars.list -v",
-            ],
+            help: ["Outputs the of lists known variables", "The default behavior is to display user-defined variables (same as -u flag)", "Usage   | vars.list [flags]", "Example | vars.list -v"],
             function: listCommand,
             flags: {
                 v: "Verbose mode (same as -idu)",
@@ -75,7 +73,6 @@ function addCommand(args: string[]) {
     if (validateVarName(args)) {
         const payload = args.slice(2).join(" ");
         shellStore.vars.set(args[1], payload);
-        console.log(shellStore.vars);
     } else return;
 }
 function delCommand(args: string[]) {
@@ -95,26 +92,38 @@ function listCommand(args: string[]) {
     };
     // default behavior
     if (args.length === 1 || args[1][0] !== "-") {
-        flags.d = true;
         flags.u = true;
     } else if (args[1][0] === "-") {
         for (const char of args[1]) {
             if (char in flags) flags[char] = true;
         }
     }
+    let index: number = 0;
     const arr: string[] = [];
+    if (flags.i) {
+        shellStore.indices.forEach((value, key) => {
+            arr.push(`#${key} | ${value}`);
+        });
+    }
     if (flags.d || flags.v) {
+        shell.clearIndices();
         shellStore.vars.forEach((value, key) => {
-            if (shell.defaultVars.includes(key)) arr.push(`* DEFAULT: ${key} | ${value}`);
+            if (shell.defaultVars.includes(key)) {
+                arr.push(`#${index} DEFAULT: ${key} | ${value}`);
+                shell.addIndex(index.toString(), value);
+                index++;
+            }
         });
     }
     if (flags.u || flags.v) {
+        shell.clearIndices();
         shellStore.vars.forEach((value, key) => {
-            if (!shell.defaultVars.includes(key)) arr.push(`* CUSTOM: ${key} | ${value}`);
+            if (!shell.defaultVars.includes(key)) {
+                arr.push(`#${index} CUSTOM: ${key} | ${value}`);
+                shell.addIndex(index.toString(), value);
+                index++;
+            }
         });
-    }
-    if (flags.i || flags.v) {
-        arr.push("Indexed variables are not yet implemented.");
     }
     shell.output(arr);
 }
@@ -132,7 +141,7 @@ function validateVarName(args: string[]): boolean {
         return false;
     }
     if (shell.defaultVars.includes(args[1])) {
-        outputError(`Invalid variable name '${args[1]}'. Default variable names are reserved. See 'vars.list -d' for reserved variable names.`);
+        outputError(`Invalid variable name '${args[1]}'. Default variable names and command names are reserved. See 'vars.list -d' for reserved default variables.`);
         return false;
     }
     return true;

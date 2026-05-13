@@ -26,24 +26,6 @@ export const settingsCommands: commandModel = {
             },
             function: serverCommand,
         },
-        assets: {
-            help: [
-                "Set the path for storage of asset files",
-                "If no path is provided, the current path will simply be printed.",
-                "Usage: settings.assets [path]",
-                "Example: settings.assets C:\\bar\\assets\\",
-            ],
-            function: assetsCommand,
-        },
-        state: {
-            help: [
-                "Set the path for storage of state files",
-                "If no path is provided, the current path will simply be printed.",
-                "Usage: settings.assets [path]",
-                "Example: settings.assets C:\\bar\\state\\",
-            ],
-            function: stateCommand,
-        },
         prompt: {
             help: [
                 "Settings for the displayed prompt",
@@ -81,7 +63,7 @@ function serverCommand(args: string[]) {
     };
     //default behavior
     if (args.length === 1 || args[1][0] !== "-") {
-        shell.output(["This command requires one or more flags, see help information below."]);
+        shell.output([`The current lobby server is: ${settingsStore.lobbyServer}`, "To do more, this command requires one or more flags, see help information below."]);
         shell.parseCommand("help settings.server (auto-alias)");
         return;
     } else if (args[1][0] === "-") {
@@ -111,23 +93,24 @@ function serverCommand(args: string[]) {
         if (i < 0) outputError(`Unable to delete server ${args[2]}`);
         else {
             settingsStore.customServerList.splice(i, 1);
-            shell.output([`Customer lobby server ${args[2]} removed.`]);
+            shell.output([`Custom lobby server ${args[2]} removed.`]);
         }
     }
     if (flags.l) {
+        shell.clearIndices();
         const arr: string[] = [];
         arr.push(...defaultServers);
         arr.push(...settingsStore.customServerList);
         shell.output([`List of known servers:`]);
         arr.forEach((element, index) => {
-            //TODO: update our indexed variables with this new list.
-            shell.output([`* #${index} | ${element}`]);
+            shell.addIndex(index.toString(), element);
+            shell.output([`#${index} | ${element}`]);
         });
     }
 }
-function assetsCommand(args: string[]) {}
-function stateCommand(args: string[]) {}
-function promptCommand(args: string[]) {}
+function promptCommand(args: string[]) {
+    shell.output(["This is currently unimplemented."]);
+}
 
 function validateServerFlags(flags: { a: boolean; d: boolean; s: boolean; l: boolean }): boolean {
     if (flags.d && (flags.a || flags.s || flags.l)) return false;

@@ -11,7 +11,7 @@ export type commandModel = {
         [key: string]: {
             help: string[]; //Subcommand help strings
             function?: (args: string[]) => void; //Function for subcommand execution
-            hide?: boolean; //If true, will not print in help command by default
+            hidden?: boolean; //If true, will not print in help command by default
             flags?: {
                 [key: string]: string; //Flags are the keys, the values are their descriptive help text.
             };

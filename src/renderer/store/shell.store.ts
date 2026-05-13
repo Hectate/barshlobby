@@ -12,6 +12,7 @@ export const shellStore: {
     prompt: string[];
     suggestions: string[];
     vars: Map<string, string>;
+    indices: Map<string, string>;
 } = reactive({
     isInitialized: false,
     log: [],
@@ -19,8 +20,11 @@ export const shellStore: {
     prompt: ["BAR.sh-$"],
     suggestions: [],
     vars: new Map(),
+    indices: new Map(),
 });
 
+// TODO: Tachyon features still need hooking up, and we need to handle incoming events that should be
+// displayed to the user (e.g. chat messages, lobby votes, etc).
 const defaultVars = ["lobby", "self", "party", "server"];
 
 export async function initShellStore() {
@@ -43,13 +47,13 @@ function output(value: string[], options?: { level: "error" | "warn" | "info" })
 }
 
 function parseCommand(input: string) {
-    shellStore.log.push(input);
-    shellStore.history.push(shellStore.prompt.join("") + " " + input);
-    const args = input.split(" ");
+    const modified = insertVars(input, 0);
+    shellStore.log.push(modified);
+    shellStore.history.push(shellStore.prompt.join("") + " " + modified);
+    const args = modified.split(" ");
     if (args[0].toLowerCase() === "help") {
         handleHelpRequest(args);
     } else {
-        //TODO: replace all variables before pushing them into this next function
         handleCommandRequest(args);
     }
 }
@@ -80,6 +84,48 @@ function suggestCommand(input: string) {
     }
     shellStore.suggestions = arr;
 }
+
+/**
+ * Recursively edits strings by replacing words starting with : and :# with appropriate vars from the existing list.
+ * @param input String to be altered
+ * @param depth Current recursion depth. Start at 0 if you are calling this yourself.
+ * @returns The new string, up to the current depth.
+ */
+function insertVars(input: string, depth: number): string {
+    let dirty = false;
+    let count = depth;
+    const maxCount = 5;
+    const args: string[] = input.split(" ");
+    const out: string[] = Array.from(args);
+    for (const i in args) {
+        if (args[i][0] === ":") {
+            if (args[i][1] === "#") {
+                const word = args[i].substring(2);
+                if (shellStore.indices.has(word)) {
+                    dirty = true;
+                    out[i] = shellStore.indices.get(word)!;
+                }
+            } else {
+                const word = args[i].substring(1);
+                if (shellStore.vars.has(word)) {
+                    dirty = true;
+                    out[i] = shellStore.vars.get(word)!;
+                }
+            }
+        }
+    }
+    if (dirty && !(count >= maxCount)) {
+        count++;
+        return insertVars(out.join(" "), count);
+    } else return out.join(" ");
+}
+
+function clearIndices() {
+    shellStore.indices.clear();
+}
+function addIndex(pos: string, value: string) {
+    shellStore.indices.set(pos, value);
+}
 function suggestVariable(input: string) {
     return;
 }
@@ -91,7 +137,9 @@ function handleHelpRequest(args: string[]) {
             if (key == "help") {
                 shellStore.history.push(`* help - This help message`);
             } else {
-                shellStore.history.push(`* ${key} - ${commands[key].help[0]}`); //The first help index should always be a short summary, so we display that only for the basic help command.
+                if (!commands[key].hidden) {
+                    shellStore.history.push(`* ${key} - ${commands[key].help[0]}`); //The first help index should always be a short summary, so we display that only for the basic help command.
+                }
             }
         }
         return;
@@ -135,4 +183,6 @@ export const shell = {
     suggestCommand,
     suggestVariable,
     output,
+    clearIndices,
+    addIndex,
 };

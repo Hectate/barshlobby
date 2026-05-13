@@ -6,44 +6,59 @@ SPDX-License-Identifier: MIT
 
 <template>
     <div v-if="settingsStore.isInitialized" id="wrapper" class="flex-col flex-grow fullheight">
-        <div class="scroll-container">
-            <span style="white-space: pre">{{ logo }}</span
-            ><br />
-            <div v-for="(item, index) in shellStore.history" :key="index">
-                <span style="white-space: pre">{{ item }}</span
+        <Transition>
+            <Preloader v-if="state === 'preloader'" @complete="onPreloadDone" />
+            <InitialSetup v-else-if="state === 'initial-setup'" @complete="onInitialSetupDone" />
+            <div class="scroll-container" v-else>
+                <span style="white-space: pre-wrap">{{ logo }}</span
                 ><br />
-            </div>
-            <div class="flex-row" ref="shell-input">
-                <div>
-                    <div v-for="item in shellStore.prompt" :key="item">
-                        <span>{{ item }}</span>
+                <div v-for="(item, index) in shellStore.history" :key="index">
+                    <span style="white-space: pre">{{ item }}</span
+                    ><br />
+                </div>
+                <div class="flex-row" ref="shell-input">
+                    <div>
+                        <div v-for="item in shellStore.prompt" :key="item">
+                            <span>{{ item }}</span>
+                        </div>
+                    </div>
+                    <div class="fullwidth">
+                        <input
+                            v-model="command"
+                            autofocus
+                            type="text"
+                            @keydown.enter="submitCommand"
+                            @keydown.tab="autoComplete"
+                            @input="onInputChange"
+                            class="mark fullwidth"
+                        />
                     </div>
                 </div>
-                <div class="fullwidth">
-                    <input
-                        v-model="command"
-                        autofocus
-                        type="text"
-                        @keydown.enter="submitCommand"
-                        @keydown.tab="autoComplete"
-                        @input="onInputChange"
-                        class="mark fullwidth"
-                    />
-                </div>
             </div>
-        </div>
+        </Transition>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, useTemplateRef, onMounted } from "vue";
+import { ref, Ref, watch, useTemplateRef, onMounted } from "vue";
 import { settingsStore } from "./store/settings.store";
 import { shellStore, shell } from "@renderer/store/shell.store";
 import { infosStore } from "@renderer/store/infos.store";
+import Preloader from "@renderer/components/misc/Preloader.vue";
+import InitialSetup from "@renderer/components/misc/InitialSetup.vue";
 
 const shellinput = useTemplateRef("shell-input");
 const command = ref("");
 
+const state: Ref<"preloader" | "initial-setup" | "default"> = ref("preloader");
+
+async function onPreloadDone() {
+    state.value = "initial-setup";
+}
+function onInitialSetupDone() {
+    state.value = "default";
+    console.debug("Initial setup done");
+}
 // prettier-ignore
 var logo =
 ` _______   ______  _______              __
