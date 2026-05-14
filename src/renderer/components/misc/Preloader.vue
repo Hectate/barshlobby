@@ -50,7 +50,7 @@ document.documentElement.style.setProperty("--background", `url(${randomBackgrou
 onMounted(async () => {
     for (const [label, thing] of thingsToPreload) {
         text.value = label;
-        await thing();
+        await thing(); // TODO: This right here calls the functions (lines 32-36) that initializes stuff. This makes this UI element *required* to load the client properly, which is not correct.
         progress.value++;
     }
     audioApi.load();

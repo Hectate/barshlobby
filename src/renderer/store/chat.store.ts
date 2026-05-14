@@ -88,7 +88,6 @@ function onMessagingReceivedEvent(data: MessagingReceivedEventData) {
     shellStore.lastChannel.userId = data.source.userId;
     shellStore.lastChannel.lobbyId = data.source.type == "lobby" ? data.source.lobbyId : undefined;
     shellStore.lastChannel.lobbyId = data.source.type == "party" ? data.source.partyId : undefined;
-    console.log(shellStore.lastChannel);
 }
 /**
  * Inserts a message into a chat history that this client sent, because the server will not provide it back to us as an event

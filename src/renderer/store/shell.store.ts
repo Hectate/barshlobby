@@ -37,8 +37,11 @@ export const shellStore: {
 // displayed to the user (e.g. chat messages, lobby votes, etc).
 // TODO: Make aliases hidable with a setting to reduce verbosity in console.
 // Will need both a setting to save as well as a way to identify when commands are not directly from the original string as typed (excluding vars subtitutions)
-// TODO: vars should probably be saved as a settings instead of lost on close.
-
+// TODO: custom vars should probably be saved as a settings instead of lost on close.
+// TODO: Figure out how to make console text wrap, be highlight/copy-able, and ideally add colors for readability
+// TODO: Replays
+// TODO: Change timestamps to be readable values
+// TODO: Replace userIDs with displaynames, with IDs also displayed.
 const defaultVars = ["lobby", "self", "party"];
 
 export async function initShellStore() {
