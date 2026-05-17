@@ -42,5 +42,5 @@ export const commands = {
 };
 
 function reCommand(args: string[]) {
-    shell.parseCommand(`chat.reply ${args.slice(1).join(" ")}`);
+    shell.parseCommand(`chat.reply ${args.slice(1).join(" ")}`, true);
 }

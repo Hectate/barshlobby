@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 import { commandModel } from "@renderer/shell/commandModel";
-import { shell } from "@renderer/store/shell.store";
+import { shell, shellStore } from "@renderer/store/shell.store";
 import { outputError } from "@renderer/shell/error";
 import { settingsStore } from "@renderer/store/settings.store";
 
@@ -26,6 +26,16 @@ export const settingsCommands: commandModel = {
             },
             function: serverCommand,
         },
+        verbose: {
+            help: [
+                "Enable/Disable verbose commands mode.",
+                "Commands that are aliased (as shortcuts) will be hidden from the history unless this is enabled.",
+                "If you would like to see the conversion of a command-as-typed into how the shell finally interpreted it, enable this.",
+                "Usage: settings.verbose [on/off]",
+                "Example: settings.verbose on",
+            ],
+            function: verboseCommand,
+        },
         prompt: {
             help: [
                 "Settings for the displayed prompt",
@@ -36,7 +46,6 @@ export const settingsCommands: commandModel = {
                 "Example: settings.prompt -uht",
             ],
             flags: {
-                v: "Verbose mode",
                 h: "Display connected host name or IP",
                 u: "Display active username",
                 i: "Display active user ID if known",
@@ -64,7 +73,7 @@ function serverCommand(args: string[]) {
     //default behavior
     if (args.length === 1 || args[1][0] !== "-") {
         shell.output([`The current lobby server is: ${settingsStore.lobbyServer}`, "To do more, this command requires one or more flags, see help information below."]);
-        shell.parseCommand("help settings.server (auto-alias)");
+        shell.parseCommand("help settings.server (auto-alias)", true);
         return;
     } else if (args[1][0] === "-") {
         for (const char of args[1]) {
@@ -111,7 +120,17 @@ function serverCommand(args: string[]) {
 function promptCommand(args: string[]) {
     shell.output(["This is currently unimplemented."]);
 }
-
+function verboseCommand(args: string[]) {
+    if (args[1] === "on") {
+        shellStore.verboseCommands = true;
+        shell.output(["Verbose commands mode enabled."]);
+    } else if (args[1] === "off") {
+        shellStore.verboseCommands = false;
+        shell.output(["Verbose commands mode disabled."]);
+    } else {
+        shell.output([`Verbose commands mode is currently ${shellStore.verboseCommands ? "enabled" : "disabled"}.`]);
+    }
+}
 function validateServerFlags(flags: { a: boolean; d: boolean; s: boolean; l: boolean }): boolean {
     if (flags.d && (flags.a || flags.s || flags.l)) return false;
     if (flags.l && (flags.a || flags.s)) return false;

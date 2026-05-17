@@ -8,6 +8,7 @@ import { lobbyStore } from "@renderer/store/lobby.store";
 import { shell, shellStore } from "@renderer/store/shell.store";
 import { me } from "@renderer/store/me.store";
 import { Message } from "@renderer/model/message";
+import { fromUnixTime, format } from "date-fns";
 
 export const chatCommands: commandModel = {
     help: ["Commands related to chat messaging"],
@@ -59,7 +60,7 @@ export const chatCommands: commandModel = {
     },
 };
 function unknownCommand(args: string[]) {
-    shell.parseCommand("help chat (auto-alias)");
+    shell.parseCommand("help chat (auto-alias)", true);
 }
 
 function sendCommand(args: string[]) {
@@ -70,7 +71,7 @@ function sendCommand(args: string[]) {
     };
     //default behavior
     if (args.length === 1 || args[1][0] !== "-") {
-        shell.parseCommand("help chat.send (auto-aliased)");
+        shell.parseCommand("help chat.send (auto-aliased)", true);
         return;
     } else if (args[1][0] === "-") {
         for (const char of args[1]) {
@@ -106,7 +107,7 @@ function sendCommand(args: string[]) {
 
 function replyCommand(args: string[]) {
     if (args.length === 1) {
-        shell.parseCommand("help chat.reply (auto-alias)");
+        shell.parseCommand("help chat.reply (auto-alias)", true);
         return;
     }
     if (shellStore.lastChannel.type === undefined) {
@@ -114,13 +115,13 @@ function replyCommand(args: string[]) {
     }
     const payload = args.slice(1).join(" ");
     if (shellStore.lastChannel.type === "lobby") {
-        shell.parseCommand(`chat.send -l ${payload}`);
+        shell.parseCommand(`chat.send -l ${payload}`, true);
     }
     if (shellStore.lastChannel.type === "party") {
-        shell.parseCommand(`chat.send -p ${payload}`);
+        shell.parseCommand(`chat.send -p ${payload}`, true);
     }
     if (shellStore.lastChannel.type === "player") {
-        shell.parseCommand(`chat.send -u ${shellStore.lastChannel.userId} ${payload}`);
+        shell.parseCommand(`chat.send -u ${shellStore.lastChannel.userId} ${payload}`, true);
     }
 }
 
@@ -180,6 +181,6 @@ function listCommand(args: string[]) {
     }
     shell.output([`Last ${count} messages from ${flags.l ? "lobby" : ""}${flags.p ? "party" : ""}${flags.u ? "userID " : ""}${flags.u ? flags.user : ""}`]);
     for (const msg of arr) {
-        shell.output([`* User ${msg.source.userId}${flags.v ? "@" + msg.timestamp.toString() : ""}: ${msg.message}`]);
+        shell.output([`* User ${msg.source.userId}${flags.v ? "@" + format(fromUnixTime(msg.timestamp / 1000), "HH:mm:ss") : ""}: ${msg.message}`]);
     }
 }

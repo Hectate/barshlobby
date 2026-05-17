@@ -22,6 +22,7 @@ export const shellStore: {
     vars: Map<string, string>;
     indices: Map<string, string>;
     lastChannel: channel;
+    verboseCommands: boolean;
 } = reactive({
     isInitialized: false,
     log: [],
@@ -31,17 +32,18 @@ export const shellStore: {
     vars: new Map(),
     indices: new Map(),
     lastChannel: {},
+    verboseCommands: false,
 });
 
 // TODO: Tachyon features still need hooking up, and we need to handle incoming events that should be
 // displayed to the user (e.g. chat messages, lobby votes, etc).
-// TODO: Make aliases hidable with a setting to reduce verbosity in console.
-// Will need both a setting to save as well as a way to identify when commands are not directly from the original string as typed (excluding vars subtitutions)
 // TODO: custom vars should probably be saved as a settings instead of lost on close.
 // TODO: Figure out how to make console text wrap, be highlight/copy-able, and ideally add colors for readability
 // TODO: Replays
-// TODO: Change timestamps to be readable values
 // TODO: Replace userIDs with displaynames, with IDs also displayed.
+// TODO: Make command parsing less brittle. There should be a dedicated command parser and then the command functions only need to consume the output, not the raw strings/args.
+// This will give us the benefit of being able to construct commands as a new Object without using string concatenation too, for aliases.
+// TODO: Include alias identifier in the command object so that nested aliases are hidden properly, not just the first level.
 const defaultVars = ["lobby", "self", "party"];
 
 export async function initShellStore() {
@@ -63,10 +65,12 @@ function output(value: string[], options?: { level: "error" | "warn" | "info" })
     shellStore.history.push(...value);
 }
 
-function parseCommand(input: string) {
+function parseCommand(input: string, alias?: boolean) {
     const modified = insertVars(input, 0);
     shellStore.log.push(modified);
-    shellStore.history.push(shellStore.prompt.join("") + " " + modified);
+    if (shellStore.verboseCommands || !alias) {
+        shellStore.history.push(shellStore.prompt.join("") + " " + modified);
+    }
     const args = modified.split(" ");
     if (args[0].toLowerCase() === "help") {
         handleHelpRequest(args);

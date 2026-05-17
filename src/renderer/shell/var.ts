@@ -67,7 +67,7 @@ export const varCommands: commandModel = {
 
 // If user sends an unknown settings command, or just "settings" we respond with the help info for this section.
 function unknownCommand(args: string[]) {
-    shell.parseCommand("help var (auto-alias)");
+    shell.parseCommand("help var (auto-alias)", true);
 }
 function addCommand(args: string[]) {
     if (validateVarName(args)) {
@@ -128,12 +128,12 @@ function listCommand(args: string[]) {
     shell.output(arr);
 }
 function indexCommand(args: string[]) {
-    shell.parseCommand("help var.index (auto-alias)");
+    shell.parseCommand("help var.index (auto-alias)", true);
 }
 
 function validateVarName(args: string[]): boolean {
     if (args.length === 1) {
-        shell.parseCommand(`help ${args[0]} (auto-alias)`);
+        shell.parseCommand(`help ${args[0]} (auto-alias)`, true);
         return false;
     }
     if (args[1][0] === "#") {

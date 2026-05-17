@@ -38,7 +38,7 @@ export const userCommands: commandModel = {
 };
 
 function unknownCommand(args: string[]) {
-    shell.parseCommand("help user (auto-alias)");
+    shell.parseCommand("help user (auto-alias)", true);
 }
 async function authCommand(args: string[]) {
     shell.output([`Attempting login to Tachyon server`]);
