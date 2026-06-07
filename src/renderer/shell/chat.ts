@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
-import { commandModel } from "@renderer/shell/commandModel";
+import { CommandModel } from "@renderer/shell/commandModel";
 import { outputError } from "@renderer/shell/error";
 import { chatStore, chat } from "@renderer/store/chat.store";
 import { lobbyStore } from "@renderer/store/lobby.store";
@@ -10,7 +10,7 @@ import { me } from "@renderer/store/me.store";
 import { Message } from "@renderer/model/message";
 import { fromUnixTime, format } from "date-fns";
 
-export const chatCommands: commandModel = {
+export const chatCommands: CommandModel = {
     help: ["Commands related to chat messaging"],
     function: unknownCommand,
     subcommands: {

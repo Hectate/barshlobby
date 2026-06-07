@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
-import { commandModel } from "@renderer/shell/commandModel";
+import { CommandModel } from "@renderer/shell/commandModel";
 import { shell } from "@renderer/store/shell.store";
 import { outputError } from "@renderer/shell/error";
 import { db } from "@renderer/store/db";
 
-export const engineCommands: commandModel = {
+export const engineCommands: CommandModel = {
     help: ["Commands related to engine files"],
     subcommands: {
         download: {

@@ -5,6 +5,8 @@ import { commands } from "@renderer/shell/commands";
 import { reactive } from "vue";
 import { outputError } from "@renderer/shell/error";
 import { UserId, PartyId, LobbyId } from "tachyon-protocol/types";
+import { responseModel } from "@renderer/shell/responseModel";
+import { ShellColor, shellColors } from "@renderer/store/shellColors";
 
 type channel = {
     type?: "party" | "lobby" | "player";
@@ -16,13 +18,14 @@ type channel = {
 export const shellStore: {
     isInitialized: boolean;
     log: string[];
-    history: string[];
+    history: responseModel[];
     prompt: string[];
     suggestions: string[];
     vars: Map<string, string>;
     indices: Map<string, string>;
     lastChannel: channel;
     verboseCommands: boolean;
+    promptState: boolean;
 } = reactive({
     isInitialized: false,
     log: [],
@@ -33,6 +36,7 @@ export const shellStore: {
     indices: new Map(),
     lastChannel: {},
     verboseCommands: false,
+    promptState: false,
 });
 
 // TODO: Tachyon features still need hooking up, and we need to handle incoming events that should be
@@ -52,24 +56,37 @@ export async function initShellStore() {
     shellStore.isInitialized = true;
 }
 
-function output(value: string[], options?: { level: "error" | "warn" | "info" }) {
-    if (options?.level === "error") {
-        console.log("error printed");
+/**
+ * Print a message to the terminal view.
+ * @param value A string or array of strings to be printed
+ * @param options Can change the color of the output, either with a level property or specific color property (which will override any level setting)
+ */
+function output(value: string | string[], options?: { level?: "error" | "warn" | "info" | "command" | "prompt"; color?: ShellColor }) {
+    const messages = typeof value === "string" ? [value] : value;
+    let color: ShellColor = shellColors.WHITE;
+    if (options?.color) {
+        color = options.color;
+    } else {
+        if (options?.level === "error") {
+            color = shellColors.RED;
+        }
+        if (options?.level === "warn") {
+            color = shellColors.YELLOW;
+        }
+        if (options?.level === "info") {
+            color = shellColors.BLUE;
+        }
     }
-    if (options?.level === "warn") {
-        console.log("warning printed");
+    for (const s of messages) {
+        shellStore.history.push({ message: s, color });
     }
-    if (options?.level === "info") {
-        console.log("info printed");
-    }
-    shellStore.history.push(...value);
 }
 
 function parseCommand(input: string, alias?: boolean) {
     const modified = insertVars(input, 0);
     shellStore.log.push(modified);
     if (shellStore.verboseCommands || !alias) {
-        shellStore.history.push(shellStore.prompt.join("") + " " + modified);
+        output(shellStore.prompt.join("") + " " + modified);
     }
     const args = modified.split(" ");
     if (args[0].toLowerCase() === "help") {
@@ -94,6 +111,10 @@ function handleCommandRequest(args: string[]) {
         console.log(error);
         return;
     }
+}
+
+function handlePrompt(args: string[]) {
+    return;
 }
 
 function suggestCommand(input: string) {
@@ -153,35 +174,35 @@ function suggestVariable(input: string) {
 
 function handleHelpRequest(args: string[]) {
     if (args.length === 1) {
-        shellStore.history.push(...commands.help);
+        output(commands.help);
         for (const key in commands) {
             if (key == "help") {
-                shellStore.history.push(`* help - This help message`);
+                output(`* help - This help message`, { level: "info" });
             } else {
                 if (!commands[key].hidden) {
-                    shellStore.history.push(`* ${key} - ${commands[key].help[0]}`); //The first help index should always be a short summary, so we display that only for the basic help command.
+                    output(`* ${key} - ${commands[key].help[0]}`, { level: "info" }); //The first help index should always be a short summary, so we display that only for the basic help command.
                 }
             }
         }
         return;
     }
     if (args[1].toLowerCase() == "help") {
-        shellStore.history.push("There is no recursive help (this statement is a paradox).");
+        output("There is no recursive help (this statement is a paradox).", { color: shellColors.INVERT });
         return;
     }
     const target = args[1].split(".");
     try {
         if (target.length > 1) {
-            shellStore.history.push(...commands[target[0]].subcommands[target[1]].help);
+            output(commands[target[0]].subcommands[target[1]].help);
             for (const key in commands[target[0]].subcommands[target[1]].flags) {
                 const item = commands[target[0]].subcommands[target[1]].flags[key];
-                shellStore.history.push(` -${key} : ${item}`);
+                output(` -${key} : ${item}`, { level: "info" });
             }
         } else {
-            shellStore.history.push(...commands[target[0]].help);
+            output(commands[target[0]].help);
             for (const key in commands[target[0]].subcommands) {
                 const item = commands[target[0]].subcommands[key];
-                shellStore.history.push(`* ${key} - ${item.help[0]}`);
+                output(`* ${key} - ${item.help[0]}`, { level: "info" });
             }
         }
     } catch {

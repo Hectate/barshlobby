@@ -8,5 +8,5 @@
 import { shell } from "@renderer/store/shell.store";
 
 export function outputError(value: string): void {
-    shell.output(["ERROR:", value, "------------"], { level: "error" });
+    shell.output(["------ERROR------", value, "-----------------"], { level: "error" });
 }

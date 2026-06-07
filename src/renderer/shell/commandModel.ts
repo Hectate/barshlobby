@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
+import { PromptModel } from "@renderer/shell/promptModel";
 
-export type commandModel = {
+export type CommandModel = {
     help: string[]; //Primary command group help strings
     function?: (args: string[]) => void; //Top level function, frequently help messages trigger
     hide?: boolean; //Permits us to have helper actions that don't appear in the command listings by default
@@ -15,6 +16,7 @@ export type commandModel = {
             flags?: {
                 [key: string]: string; //Flags are the keys, the values are their descriptive help text.
             };
+            prompts?: PromptModel;
         };
     };
 };

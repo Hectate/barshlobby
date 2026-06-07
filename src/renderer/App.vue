@@ -8,115 +8,26 @@ SPDX-License-Identifier: MIT
     <div v-if="settingsStore.isInitialized" id="wrapper" class="flex-col flex-grow fullheight">
         <Transition>
             <InitialSetup v-if="state === 'initial-setup'" @complete="onInitialSetupDone" />
-            <div class="scroll-container" v-else>
-                <span style="white-space: pre-wrap">{{ logo }}</span
-                ><br />
-                <div v-for="(item, index) in shellStore.history" :key="index">
-                    <span style="white-space: pre">{{ item }}</span
-                    ><br />
-                </div>
-                <div class="flex-row" ref="shell-input">
-                    <div>
-                        <div v-for="item in shellStore.prompt" :key="item">
-                            <span>{{ item }}</span>
-                        </div>
-                    </div>
-                    <div class="fullwidth">
-                        <input
-                            v-model="command"
-                            autofocus
-                            type="text"
-                            @keydown.enter="submitCommand"
-                            @keydown.tab="autoComplete"
-                            @input="onInputChange"
-                            class="mark fullwidth"
-                        />
-                    </div>
-                </div>
-            </div>
+            <Terminal v-else></Terminal>
         </Transition>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, watch, useTemplateRef, onMounted } from "vue";
+import { ref, Ref } from "vue";
 import { settingsStore } from "./store/settings.store";
-import { shellStore, shell } from "@renderer/store/shell.store";
-import { infosStore } from "@renderer/store/infos.store";
 import InitialSetup from "@renderer/components/misc/InitialSetup.vue";
+import Terminal from "@renderer/shell/Terminal.vue";
 
-const shellinput = useTemplateRef("shell-input");
-const command = ref("");
+const state: Ref<"initial-setup" | "default"> = ref("initial-setup");
 
-const state: Ref<"preloader" | "initial-setup" | "default"> = ref("preloader");
-
-async function onPreloadDone() {
-    state.value = "initial-setup";
-}
 function onInitialSetupDone() {
     state.value = "default";
-    console.debug("Initial setup done");
 }
-// prettier-ignore
-var logo =
-` _______   ______  _______              __
-|       \\ /      \\|       \\            |  \\
-| ▓▓▓▓▓▓▓\\  ▓▓▓▓▓▓\\ ▓▓▓▓▓▓▓\\    _______| ▓▓____
-| ▓▓__/ ▓▓ ▓▓__| ▓▓ ▓▓__| ▓▓   /       \\ ▓▓    \\
-| ▓▓    ▓▓ ▓▓    ▓▓ ▓▓    ▓▓  |  ▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓\\
-| ▓▓▓▓▓▓▓\\ ▓▓▓▓▓▓▓▓ ▓▓▓▓▓▓▓\\   \\▓▓    \\| ▓▓  | ▓▓
-| ▓▓__/ ▓▓ ▓▓  | ▓▓ ▓▓  | ▓▓__ _\\▓▓▓▓▓▓\\ ▓▓  | ▓▓
-| ▓▓    ▓▓ ▓▓  | ▓▓ ▓▓  | ▓▓  \\       ▓▓ ▓▓  | ▓▓
- \\▓▓▓▓▓▓▓ \\▓▓   \\▓▓\\▓▓   \\▓▓\\▓▓\\▓▓▓▓▓▓▓ \\▓▓   \\▓▓`;
-
-function submitCommand() {
-    if (command.value.length === 0) return;
-    shell.parseCommand(command.value);
-    command.value = "";
-}
-function autoComplete() {
-    console.log(command.value);
-}
-function onInputChange() {
-    if (command.value.length > 0) {
-        // This works but it's disabled until I decide how to display it.
-        //shell.suggestCommand(command.value);
-    }
-}
-
-watch(
-    shellStore.history,
-    () => {
-        shellinput.value?.scrollIntoView(true);
-    },
-    { flush: "post" }
-);
-
-onMounted(() => {
-    shellStore.history.push(
-        `Welcome to BAR.sh Lobby version ${infosStore.lobby.version}. Type 'help' and press Enter to view available commands.`
-    );
-});
 </script>
 
 <style lang="scss" scoped>
-.view-container {
-    flex: auto;
-    transition: transform 0.4s ease-out;
-    &.translated-right {
-        transform: translateX(10%);
-    }
-}
-
 .wrapper {
     overflow: hidden;
-}
-.mark {
-    border-bottom: 1px solid;
-    border-color: white;
-    background-color: darkslategray;
-}
-span {
-    font-family: monospace;
 }
 </style>

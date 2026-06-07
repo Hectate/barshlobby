@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
-import { commandModel } from "@renderer/shell/commandModel";
+import { CommandModel } from "@renderer/shell/commandModel";
 import { shell, shellStore } from "@renderer/store/shell.store";
 import { outputError } from "@renderer/shell/error";
 import { settingsStore } from "@renderer/store/settings.store";
 
-export const settingsCommands: commandModel = {
+export const settingsCommands: CommandModel = {
     help: ["Client-wide settings"],
     function: unknownCommand,
     subcommands: {

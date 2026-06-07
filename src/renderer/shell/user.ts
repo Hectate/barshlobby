@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
-import { commandModel } from "@renderer/shell/commandModel";
+import { CommandModel } from "@renderer/shell/commandModel";
 import { shell } from "@renderer/store/shell.store";
 import { me, auth } from "@renderer/store/me.store";
 import { tachyon } from "@renderer/store/tachyon.store";
 import { outputError } from "@renderer/shell/error";
 
-export const userCommands: commandModel = {
+export const userCommands: CommandModel = {
     help: [
         "Commands related to the current user",
         "Note that the connection flow to the Tachyon server is user.auth and then user.login after authentication",
