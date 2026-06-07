@@ -121,6 +121,7 @@ const mapsApi = {
     // Content
     downloadMap: (springName: string): Promise<void> => ipcRenderer.invoke("maps:downloadMap", springName),
     downloadMaps: (springNames: string[]): Promise<void[]> => ipcRenderer.invoke("maps:downloadMaps", springNames),
+    getInstalledMapNames: (): Promise<string[]> => ipcRenderer.invoke("maps:getInstalledMapNames"),
     getInstalledVersions: (): Promise<Map<string, MapData>> => ipcRenderer.invoke("maps:getInstalledVersions"),
     isVersionInstalled: (springName: string): Promise<boolean> => ipcRenderer.invoke("maps:isVersionInstalled", springName),
 
@@ -147,11 +148,13 @@ const downloadsApi = {
     onDownloadGameComplete: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:game:complete", (_event, downloadInfo) => callback(downloadInfo)),
     onDownloadGameProgress: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:game:progress", (_event, downloadInfo) => callback(downloadInfo)),
     onDownloadGameFail: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:game:fail", (_event, downloadInfo) => callback(downloadInfo)),
+    onDownloadGameRetry: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:game:retry", (_event, downloadInfo) => callback(downloadInfo)),
     // Maps
     onDownloadMapStart: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:map:start", (_event, downloadInfo) => callback(downloadInfo)),
     onDownloadMapComplete: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:map:complete", (_event, downloadInfo) => callback(downloadInfo)),
     onDownloadMapProgress: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:map:progress", (_event, downloadInfo) => callback(downloadInfo)),
     onDownloadMapFail: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:map:fail", (_event, downloadInfo) => callback(downloadInfo)),
+    onDownloadMapRetry: (callback: (downloadInfo: DownloadInfo) => void) => ipcRenderer.on("downloads:map:retry", (_event, downloadInfo) => callback(downloadInfo)),
 };
 export type DownloadsApi = typeof downloadsApi;
 contextBridge.exposeInMainWorld("downloads", downloadsApi);
@@ -170,6 +173,23 @@ const barNavigationApi = {
 
 export type BarNavigationApi = typeof barNavigationApi;
 contextBridge.exposeInMainWorld("barNavigation", barNavigationApi);
+
+const pathsApi = {
+    selectFolder: (): Promise<string | null> => ipcRenderer.invoke("paths:selectFolder"),
+    moveAndChangePath: (newPath: string): Promise<void> => ipcRenderer.invoke("paths:moveAndChangePath", newPath),
+    copyAndChangePath: (newPath: string): Promise<void> => ipcRenderer.invoke("paths:copyAndChangePath", newPath),
+    changePath: (newPath: string): Promise<void> => ipcRenderer.invoke("paths:changePath", newPath),
+    getCurrentAssetsPath: (): Promise<string> => ipcRenderer.invoke("paths:getCurrentAssetsPath"),
+    onCopyProgress: (callback: (progress: { copied: number; total: number }) => void): (() => void) => {
+        const handler = (_event: Electron.IpcRendererEvent, progress: { copied: number; total: number }) => callback(progress);
+        ipcRenderer.on("paths:copyProgress", handler);
+        return () => {
+            ipcRenderer.removeListener("paths:copyProgress", handler);
+        };
+    },
+};
+export type PathsApi = typeof pathsApi;
+contextBridge.exposeInMainWorld("paths", pathsApi);
 
 // Tachyon API
 function request<C extends GetCommandIds<"user", "server", "request">>(

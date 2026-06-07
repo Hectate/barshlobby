@@ -2070,7 +2070,15 @@
             "downloads": {
                 "noDownloads": null,
                 "moreDownloads": null,
-                "starting": null
+                "starting": null,
+                "extracting": null,
+                "progressMB": null,
+                "speedMBps": null,
+                "speedKBps": null,
+                "speedBps": null,
+                "etaHoursMinutes": null,
+                "etaMinutesSeconds": null,
+                "etaSeconds": null
             },
             "serverStatus": {
                 "playersOnline": null,
@@ -2100,7 +2108,19 @@
                 "labelSm": null,
                 "labelMd": null,
                 "labelLg": null,
-                "labelDisplay": null
+                "labelDisplay": null,
+                "storage": null,
+                "assetsPath": null,
+                "browse": null,
+                "moveToNewLocation": null,
+                "moveToNewLocationDesc": null,
+                "copyToNewLocation": null,
+                "copyToNewLocationDesc": null,
+                "useNewLocationOnly": null,
+                "useNewLocationOnlyDesc": null,
+                "apply": null,
+                "restartRequired": null,
+                "transferringFiles": null
             },
             "friends": {
                 "unknownUser": null,
@@ -2214,7 +2234,16 @@
                     "installingGame": null,
                     "downloadingMaps": null,
                     "downloadingUpdate": null,
-                    "installingUpdate": null
+                    "installingUpdate": null,
+                    "selectAssetsPathDescription": null,
+                    "browse": null,
+                    "continue": null,
+                    "retry": null,
+                    "skip": null,
+                    "playOffline": null,
+                    "stepFailed": null,
+                    "stepRetrying": null,
+                    "contentRequired": null
                 }
             },
             "battle": {
