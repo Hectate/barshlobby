@@ -7,8 +7,7 @@ SPDX-License-Identifier: MIT
 <template>
     <div v-if="settingsStore.isInitialized" id="wrapper" class="flex-col flex-grow fullheight">
         <Transition>
-            <Preloader v-if="state === 'preloader'" @complete="onPreloadDone" />
-            <InitialSetup v-else-if="state === 'initial-setup'" @complete="onInitialSetupDone" />
+            <InitialSetup v-if="state === 'initial-setup'" @complete="onInitialSetupDone" />
             <div class="scroll-container" v-else>
                 <span style="white-space: pre-wrap">{{ logo }}</span
                 ><br />
@@ -44,7 +43,6 @@ import { ref, Ref, watch, useTemplateRef, onMounted } from "vue";
 import { settingsStore } from "./store/settings.store";
 import { shellStore, shell } from "@renderer/store/shell.store";
 import { infosStore } from "@renderer/store/infos.store";
-import Preloader from "@renderer/components/misc/Preloader.vue";
 import InitialSetup from "@renderer/components/misc/InitialSetup.vue";
 
 const shellinput = useTemplateRef("shell-input");
