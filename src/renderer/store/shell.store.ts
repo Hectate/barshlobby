@@ -7,6 +7,7 @@ import { outputError } from "@renderer/shell/error";
 import { UserId, PartyId, LobbyId } from "tachyon-protocol/types";
 import { responseModel } from "@renderer/shell/responseModel";
 import { ShellColor, shellColors } from "@renderer/store/shellColors";
+import { PromptModel } from "@renderer/shell/promptModel";
 
 type channel = {
     type?: "party" | "lobby" | "player";
@@ -26,6 +27,7 @@ export const shellStore: {
     lastChannel: channel;
     verboseCommands: boolean;
     promptState: boolean;
+    promptOptions?: PromptModel;
 } = reactive({
     isInitialized: false,
     log: [],
@@ -37,12 +39,13 @@ export const shellStore: {
     lastChannel: {},
     verboseCommands: false,
     promptState: false,
+    promptOptions: undefined,
 });
 
 // TODO: Tachyon features still need hooking up, and we need to handle incoming events that should be
 // displayed to the user (e.g. chat messages, lobby votes, etc).
 // TODO: custom vars should probably be saved as a settings instead of lost on close.
-// TODO: Figure out how to make console text wrap, be highlight/copy-able, and ideally add colors for readability
+// TODO: Figure out how to make console text wrap, be highlight/copy-able
 // TODO: Replays
 // TODO: Replace userIDs with displaynames, with IDs also displayed.
 // TODO: Make command parsing less brittle. There should be a dedicated command parser and then the command functions only need to consume the output, not the raw strings/args.
@@ -99,12 +102,25 @@ function parseCommand(input: string, alias?: boolean) {
 function handleCommandRequest(args: string[]) {
     const target = args[0].split(".");
     try {
-        if (target.length === 1) {
-            commands[target[0]].function(args);
+        if (shellStore.promptState) {
+            handlePrompt(target[0].toLowerCase());
             return;
         } else {
-            commands[target[0]].subcommands[target[1]].function(args);
-            return;
+            if (target.length === 1) {
+                commands[target[0]].function(args);
+                if ("prompts" in commands[target[0]]) {
+                    shellStore.promptState = true;
+                    shellStore.promptOptions = commands[target[0]].prompts;
+                }
+                return;
+            } else {
+                commands[target[0]].subcommands[target[1]].function(args);
+                if ("prompts" in commands[target[0]].subcommands[target[1]]) {
+                    shellStore.promptState = true;
+                    shellStore.promptOptions = commands[target[0]].subcommands[target[1]].prompts;
+                }
+                return;
+            }
         }
     } catch (error) {
         outputError(`Invalid function call for command ${args.join(" ")}`);
@@ -113,15 +129,30 @@ function handleCommandRequest(args: string[]) {
     }
 }
 
-function handlePrompt(args: string[]) {
-    return;
+function handlePrompt(response: string) {
+    try {
+        if (response === "") {
+            response = shellStore.promptOptions!.default;
+        }
+        shellStore.promptOptions?.options[response]();
+        shellStore.promptState = false;
+    } catch (error) {
+        console.log(error);
+        outputError(`Invalid response ${response}`);
+    }
 }
 
 function suggestCommand(input: string) {
     const arr: string[] = [];
-    for (const key in commands) {
-        if (key.startsWith(input.toLowerCase())) {
+    if (shellStore.promptState) {
+        for (const key in shellStore.promptOptions?.options) {
             arr.push(key);
+        }
+    } else {
+        for (const key in commands) {
+            if (key.startsWith(input.toLowerCase())) {
+                arr.push(key);
+            }
         }
     }
     shellStore.suggestions = arr;

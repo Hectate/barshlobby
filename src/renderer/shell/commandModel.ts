@@ -7,6 +7,7 @@ export type CommandModel = {
     help: string[]; //Primary command group help strings
     function?: (args: string[]) => void; //Top level function, frequently help messages trigger
     hide?: boolean; //Permits us to have helper actions that don't appear in the command listings by default
+    prompts?: PromptModel; //Primary command prompts are an option
     subcommands?: {
         //subcommand names are the keys below
         [key: string]: {

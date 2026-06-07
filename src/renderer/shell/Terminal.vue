@@ -56,7 +56,7 @@ var logo =
  \\▓▓▓▓▓▓▓ \\▓▓   \\▓▓\\▓▓   \\▓▓\\▓▓\\▓▓▓▓▓▓▓ \\▓▓   \\▓▓`;
 
 function submitCommand() {
-    if (command.value.length === 0) return;
+    // if (command.value.length === 0) return;
     shell.parseCommand(command.value);
     command.value = "";
 }

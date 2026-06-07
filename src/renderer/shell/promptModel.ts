@@ -8,5 +8,5 @@
 
 export type PromptModel = {
     default: string;
-    prompts: { [key: string]: () => void };
+    options: { [key: string]: () => void };
 };
