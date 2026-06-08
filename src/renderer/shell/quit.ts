@@ -17,12 +17,13 @@ export const quitCommands: CommandModel = {
 };
 
 function promptQuit() {
-    shell.output("Are you sure? [y/N]");
+    shell.output("Are you sure? [y/N]", { level: "warn" });
 }
 
 function quitClient() {
     window.close();
 }
 function cancelQuit() {
+    shell.output("Quit cancelled.");
     return;
 }
