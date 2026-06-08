@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Nathaniel "Hectate" Mitchell
 //
 // SPDX-License-Identifier: MIT
-import { commandModel } from "@renderer/shell/commandModel";
+import { CommandModel } from "@renderer/shell/commandModel";
 import { shell, shellStore } from "@renderer/store/shell.store";
 import { outputError } from "@renderer/shell/error";
 
-export const varCommands: commandModel = {
+export const varCommands: CommandModel = {
     help: [
         "Commands related to shell variables.",
         "Variables are a way to quickly re-use known strings using named references, rather than typing them out manually.",
