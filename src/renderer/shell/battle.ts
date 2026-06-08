@@ -26,10 +26,8 @@ export const battleCommands: CommandModel = {
 
 async function onQuickBattle() {
     try {
-        const mapName = mapsStore.availableMapNames.values().next().value;
+        const mapName = [...mapsStore.availableMapNames][Math.floor(Math.random() * mapsStore.availableMapNames.size)];
         const map = await db.maps.get(mapName!);
-        console.log(mapName);
-        battleActions.resetToDefaultBattle(undefined, undefined, map, false);
         battleStore.battleOptions.map = map;
         battleActions.startBattle();
     } catch (error) {

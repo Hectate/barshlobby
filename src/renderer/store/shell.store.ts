@@ -6,7 +6,7 @@ import { reactive } from "vue";
 import { outputError } from "@renderer/shell/error";
 import { UserId, PartyId, LobbyId } from "tachyon-protocol/types";
 import { responseModel } from "@renderer/shell/responseModel";
-import { ShellColor, shellColors } from "@renderer/store/shellColors";
+import { ShellColor, shellColors } from "@renderer/shell/shellColors";
 import { PromptModel } from "@renderer/shell/promptModel";
 
 type channel = {
@@ -57,6 +57,7 @@ export async function initShellStore() {
     initializeCommands();
     initializeVars();
     shellStore.isInitialized = true;
+    console.log("Shell Store init complete");
 }
 
 /**

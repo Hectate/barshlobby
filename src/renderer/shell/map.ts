@@ -2,12 +2,15 @@
 //
 // SPDX-License-Identifier: MIT
 import { CommandModel } from "@renderer/shell/commandModel";
+import { db } from "@renderer/store/db";
+import { downloadMap } from "@renderer/store/maps.store";
 
 export const mapCommands: CommandModel = {
     help: ["Commands related to map files"],
     subcommands: {
         download: {
             help: ["Attempts to download a map to your assets directory"],
+            function: downloadMapCommand,
         },
         list: {
             help: ["Generate a list of known maps"],
@@ -27,3 +30,8 @@ export const mapCommands: CommandModel = {
         },
     },
 };
+
+async function downloadMapCommand(args: string[]) {
+    const payload = args.slice(1).join(" ");
+    await downloadMap(payload);
+}
