@@ -51,6 +51,7 @@ export const shellStore: {
 // TODO: Make command parsing less brittle. There should be a dedicated command parser and then the command functions only need to consume the output, not the raw strings/args.
 // This will give us the benefit of being able to construct commands as a new Object without using string concatenation too, for aliases.
 // TODO: Include alias identifier in the command object so that nested aliases are hidden properly, not just the first level.
+// TODO: when downloads are triggered, display some activity about them in the client
 const defaultVars = ["lobby", "self", "party"];
 
 export async function initShellStore() {

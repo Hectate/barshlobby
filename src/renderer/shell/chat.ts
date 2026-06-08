@@ -164,16 +164,16 @@ function listCommand(args: string[]) {
     }
     const arr: Message[] = [];
     if (flags.l) {
-        if (args[2]) count = Number(args[2]);
+        if (args[2]) count = isNaN(Number(args[2])) ? 10 : Number(args[2]);
         arr.push(...chatStore.lobbyChat.slice(-count));
     }
     if (flags.p) {
-        if (args[2]) count = Number(args[2]);
+        if (args[2]) count = isNaN(Number(args[2])) ? 10 : Number(args[2]);
         arr.push(...chatStore.partyChat.slice(-count));
     }
     if (flags.u) {
         if (flags.user == undefined && args[2]) flags.user = args[2];
-        if (args[3]) count = Number(args[3]);
+        if (args[3]) count = isNaN(Number(args[3])) ? 10 : Number(args[3]);
         else if (args[1] === "-v") count = Number(args[2]);
         if (chatStore.userChats.has(flags.user!)) {
             arr.push(...chatStore.userChats.get(flags.user!)!.slice(-count));
